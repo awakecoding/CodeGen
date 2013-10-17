@@ -34,11 +34,20 @@ namespace CodeGen
 					string name = m.Groups [2].ToString ();
 					string number = m.Groups [3].ToString ();
 
+					if (type.Equals ("char*"))
+						type = "STRING";
+
+					if (type.Equals ("DWORD"))
+						type = "UINT32";
+
 					//Console.WriteLine ("# {0} / {1} / {2}", type, name, number);
+
+					if (type.Equals("STRING") || type.Equals("BOOL") || type.Equals("UINT32"))
+						Console.WriteLine("DEFINE_FREERDP_SETTINGS_ACCESSORS_{0}({1}) /* {2} */", type, name, number);
 
 					if (type.Equals ("char*")) {
 						stringDict.Add (name, Int32.Parse (number));
-					} else if (type.Equals ("UINT32") || type.Equals ("DWORD")) {
+					} else if (type.Equals ("UINT32")) {
 						uint32Dict.Add (name, Int32.Parse (number));
 					} else if (type.Equals ("BOOL")) {
 						boolDict.Add (name, Int32.Parse (number));
@@ -46,28 +55,28 @@ namespace CodeGen
 				}
 			}
 
-			if (freerdpSettingsClone)
-			{
-				Console.WriteLine("char* values\n");
+			freerdpSettingsClone = false;
 
-				foreach (KeyValuePair<string, int> pair in stringDict)
-				{
-					Console.WriteLine("_settings->{0} = _strdup(settings->{0}); /* {1} */", pair.Key, pair.Value);
+			if (freerdpSettingsClone) {
+				Console.WriteLine ("char* values\n");
+
+				foreach (KeyValuePair<string, int> pair in stringDict) {
+					Console.WriteLine ("_settings->{0} = _strdup(settings->{0}); /* {1} */", pair.Key, pair.Value);
 				}
 
-				Console.WriteLine("UINT32 values\n");
+				Console.WriteLine ("UINT32 values\n");
 
-				foreach (KeyValuePair<string, int> pair in uint32Dict)
-				{
-					Console.WriteLine("_settings->{0} = settings->{0}; /* {1} */", pair.Key, pair.Value);
+				foreach (KeyValuePair<string, int> pair in uint32Dict) {
+					Console.WriteLine ("_settings->{0} = settings->{0}; /* {1} */", pair.Key, pair.Value);
 				}
 
-				Console.WriteLine("BOOL values\n");
+				Console.WriteLine ("BOOL values\n");
 
-				foreach (KeyValuePair<string, int> pair in boolDict)
-				{
-					Console.WriteLine("_settings->{0} = settings->{0}; /* {1} */", pair.Key, pair.Value);
+				foreach (KeyValuePair<string, int> pair in boolDict) {
+					Console.WriteLine ("_settings->{0} = settings->{0}; /* {1} */", pair.Key, pair.Value);
 				}
+			} else {
+
 			}
 		}
 	}
